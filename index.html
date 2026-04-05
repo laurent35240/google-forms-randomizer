@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Survey Randomizer</title>
+  <meta name="description" content="Generate a single link that randomly redirects visitors to one of your Google Survey URLs.">
+
+  <meta property="og:title" content="Survey Randomizer">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#7c3aed">
+
+  <!-- Redirect logic runs synchronously before body renders to avoid any UI flash -->
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var encoded = params.get('links');
+      if (encoded) {
+        document.documentElement.dataset.mode = 'redirect';
+        try {
+          var urls = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+          if (Array.isArray(urls) && urls.length >= 2) {
+            var target = urls[Math.floor(Math.random() * urls.length)];
+            window.location.replace(target);
+          } else {
+            document.documentElement.dataset.error = 'invalid';
+          }
+        } catch (e) {
+          document.documentElement.dataset.error = 'decode';
+        }
+      } else {
+        document.documentElement.dataset.mode = 'creator';
+      }
+    })();
+  </script>
+
+  <style>
+    /* --- Reset & Base --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #202124;
+      background: #f8f9fa;
+      min-height: 100vh;
+    }
+
+    /* --- Mode switching: hide both views by default --- */
+    #creator-view, #redirect-view { display: none; }
+    html[data-mode="creator"] #creator-view { display: block; }
+    html[data-mode="redirect"] #redirect-view { display: flex; }
+    html[data-error] #redirect-view { display: flex; }
+
+    /* --- Redirect view --- */
+    #redirect-view {
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      padding: 24px;
+    }
+
+    #redirect-view .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #dadce0;
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #redirect-view p {
+      color: #5f6368;
+      font-size: 15px;
+    }
+
+    #redirect-error {
+      color: #d93025;
+      font-size: 14px;
+    }
+
+    #redirect-error a {
+      color: #7c3aed;
+    }
+
+    html[data-error] #redirect-spinner { display: none; }
+    html[data-error] #redirect-label { display: none; }
+    html[data-error] #redirect-error { display: block !important; }
+
+    /* --- Creator view --- */
+    #creator-view {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+    }
+
+    header {
+      margin-bottom: 36px;
+      text-align: center;
+    }
+
+    #logo {
+      width: 144px;
+      height: 144px;
+      object-fit: contain;
+      margin-bottom: 12px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #202124;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #5f6368;
+      font-size: 15px;
+    }
+
+    /* --- Form --- */
+    #survey-form {
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    #url-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .url-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .url-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #5f6368;
+      min-width: 60px;
+      flex-shrink: 0;
+    }
+
+    .url-input {
+      flex: 1;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #202124;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .url-input:focus {
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 2px rgba(26,115,232,0.15);
+    }
+
+    .url-input.error {
+      border-color: #d93025;
+      box-shadow: 0 0 0 2px rgba(217,48,37,0.12);
+    }
+
+    .remove-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #80868b;
+      font-size: 20px;
+      line-height: 1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .remove-btn:hover:not(:disabled) {
+      background: #f1f3f4;
+      color: #d93025;
+    }
+
+    .remove-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    #add-url-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      margin-bottom: 20px;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #7c3aed;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    #add-url-btn:hover:not(:disabled) {
+      color: #6d28d9;
+      text-decoration: underline;
+    }
+
+    #add-url-btn:disabled {
+      color: #80868b;
+      cursor: default;
+    }
+
+    #form-error {
+      font-size: 13px;
+      color: #d93025;
+      margin-bottom: 16px;
+      min-height: 18px;
+    }
+
+    #generate-btn {
+      width: 100%;
+      height: 44px;
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    #generate-btn:hover {
+      background: #6d28d9;
+    }
+
+    #generate-btn:active {
+      background: #5b21b6;
+    }
+
+    /* --- Result section --- */
+    #result {
+      margin-top: 20px;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      padding: 20px 24px;
+    }
+
+    #result label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #5f6368;
+      margin-bottom: 8px;
+    }
+
+    .result-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    #result-url {
+      flex: 1;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'Roboto Mono', 'Menlo', monospace;
+      color: #202124;
+      background: #f8f9fa;
+      outline: none;
+      cursor: text;
+    }
+
+    #copy-btn {
+      height: 40px;
+      padding: 0 18px;
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    #copy-btn:hover {
+      background: #6d28d9;
+    }
+
+    #copy-confirmation {
+      font-size: 13px;
+      color: #188038;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    #url-length-warning {
+      font-size: 13px;
+      color: #e37400;
+      margin-top: 8px;
+    }
+
+    /* --- Utility --- */
+    [hidden] { display: none !important; }
+  </style>
+</head>
+
+<body>
+
+  <!-- Redirect view (shown when ?links= is in URL) -->
+  <div id="redirect-view">
+    <div class="spinner" id="redirect-spinner"></div>
+    <p id="redirect-label">Redirecting you to a survey…</p>
+    <p id="redirect-error" hidden>
+      This link appears to be invalid or corrupted.<br>
+      <a href="/">Go back to the creator</a>.
+    </p>
+  </div>
+
+  <!-- Creator view (shown when no ?links= param) -->
+  <div id="creator-view">
+    <header>
+      <img src="img/logo.png" alt="Survey Randomizer logo" id="logo">
+      <h1>Survey Randomizer</h1>
+      <p>Paste your survey URLs below. Anyone who visits your generated link will be sent to one of them at random.</p>
+    </header>
+
+    <form id="survey-form" novalidate>
+      <div id="url-list">
+        <!-- URL rows are rendered by JS -->
+      </div>
+
+      <button type="button" id="add-url-btn">+ Add another URL</button>
+
+      <p id="form-error" hidden></p>
+
+      <button type="button" id="generate-btn">Generate link</button>
+    </form>
+
+    <section id="result" hidden>
+      <label for="result-url">Your shareable link:</label>
+      <div class="result-row">
+        <input type="text" id="result-url" readonly>
+        <button type="button" id="copy-btn">Copy</button>
+      </div>
+      <p id="copy-confirmation" hidden>Copied!</p>
+      <p id="url-length-warning" hidden>
+        Warning: this URL is long (&gt;2000 chars) and may not work in all contexts.
+      </p>
+    </section>
+  </div>
+
+  <script>
+    var MAX_URLS = 10;
+    var MIN_URLS = 2;
+    var rowCount = 0;
+
+    function encodeLinks(urls) {
+      return btoa(unescape(encodeURIComponent(JSON.stringify(urls))));
+    }
+
+    function buildShareableURL(urls) {
+      var base = window.location.origin + window.location.pathname;
+      return base + '?links=' + encodeLinks(urls);
+    }
+
+    function isValidURL(str) {
+      try {
+        var url = new URL(str.trim());
+        return url.protocol === 'https:' || url.protocol === 'http:';
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function updateRemoveButtons() {
+      var rows = document.querySelectorAll('.url-row');
+      rows.forEach(function (row) {
+        row.querySelector('.remove-btn').disabled = rows.length <= MIN_URLS;
+      });
+    }
+
+    function updateAddButton() {
+      var rows = document.querySelectorAll('.url-row');
+      document.getElementById('add-url-btn').disabled = rows.length >= MAX_URLS;
+    }
+
+    function createURLRow() {
+      rowCount++;
+      var row = document.createElement('div');
+      row.className = 'url-row';
+
+      var label = document.createElement('span');
+      label.className = 'url-label';
+      label.textContent = 'URL ' + rowCount;
+
+      var input = document.createElement('input');
+      input.type = 'url';
+      input.className = 'url-input';
+      input.placeholder = 'https://docs.google.com/forms/…';
+      input.autocomplete = 'off';
+      input.spellcheck = false;
+      input.addEventListener('input', function () {
+        input.classList.remove('error');
+        var err = document.getElementById('form-error');
+        err.hidden = true;
+        err.textContent = '';
+      });
+
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'remove-btn';
+      removeBtn.setAttribute('aria-label', 'Remove this URL');
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', function () {
+        row.remove();
+        updateRemoveButtons();
+        updateAddButton();
+      });
+
+      row.appendChild(label);
+      row.appendChild(input);
+      row.appendChild(removeBtn);
+      return row;
+    }
+
+    function addURLRow() {
+      var list = document.getElementById('url-list');
+      var row = createURLRow();
+      list.appendChild(row);
+      row.querySelector('.url-input').focus();
+      updateRemoveButtons();
+      updateAddButton();
+    }
+
+    function getValidURLs() {
+      var inputs = document.querySelectorAll('.url-input');
+      var urls = [];
+      var hasInvalid = false;
+
+      inputs.forEach(function (input) {
+        var val = input.value.trim();
+        if (val === '') return;
+        if (!isValidURL(val)) {
+          input.classList.add('error');
+          hasInvalid = true;
+        } else {
+          input.classList.remove('error');
+          urls.push(val);
+        }
+      });
+
+      if (hasInvalid) return null;
+      return urls;
+    }
+
+    function generateLink() {
+      var urls = getValidURLs();
+      var formError = document.getElementById('form-error');
+
+      if (urls === null) {
+        formError.textContent = 'Please fix the highlighted fields.';
+        formError.hidden = false;
+        return;
+      }
+
+      if (urls.length < MIN_URLS) {
+        formError.textContent = 'Please enter at least ' + MIN_URLS + ' valid survey URLs.';
+        formError.hidden = false;
+        return;
+      }
+
+      formError.hidden = true;
+
+      var shareURL = buildShareableURL(urls);
+      var resultSection = document.getElementById('result');
+      var resultInput = document.getElementById('result-url');
+      var warning = document.getElementById('url-length-warning');
+      var confirmation = document.getElementById('copy-confirmation');
+
+      resultInput.value = shareURL;
+      resultSection.hidden = false;
+      confirmation.hidden = true;
+      warning.hidden = shareURL.length <= 2000;
+
+      resultInput.select();
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function copyLink() {
+      var url = document.getElementById('result-url').value;
+      var confirmation = document.getElementById('copy-confirmation');
+      var copyBtn = document.getElementById('copy-btn');
+
+      function showConfirmation() {
+        confirmation.hidden = false;
+        copyBtn.textContent = 'Copied!';
+        setTimeout(function () {
+          confirmation.hidden = true;
+          copyBtn.textContent = 'Copy';
+        }, 2000);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(showConfirmation).catch(function () {
+          fallbackCopy(url, showConfirmation);
+        });
+      } else {
+        fallbackCopy(url, showConfirmation);
+      }
+    }
+
+    function fallbackCopy(text, callback) {
+      var input = document.getElementById('result-url');
+      input.select();
+      try {
+        document.execCommand('copy');
+        callback();
+      } catch (_) {}
+    }
+
+    function init() {
+      if (document.documentElement.dataset.mode !== 'creator') return;
+
+      var list = document.getElementById('url-list');
+
+      // Render initial 2 rows
+      for (var i = 0; i < MIN_URLS; i++) {
+        var row = createURLRow();
+        list.appendChild(row);
+      }
+      updateRemoveButtons();
+      updateAddButton();
+
+      document.getElementById('add-url-btn').addEventListener('click', addURLRow);
+      document.getElementById('generate-btn').addEventListener('click', generateLink);
+      document.getElementById('copy-btn').addEventListener('click', copyLink);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
+</body>
+
+</html>
