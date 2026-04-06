@@ -121,6 +121,22 @@
       display: block;
       margin-left: auto;
       margin-right: auto;
+      cursor: pointer;
+    }
+
+    @keyframes shake {
+      0%   { transform: translateX(0); }
+      15%  { transform: translateX(-8px) rotate(-4deg); }
+      30%  { transform: translateX(8px) rotate(4deg); }
+      45%  { transform: translateX(-6px) rotate(-3deg); }
+      60%  { transform: translateX(6px) rotate(3deg); }
+      75%  { transform: translateX(-3px) rotate(-1deg); }
+      90%  { transform: translateX(3px) rotate(1deg); }
+      100% { transform: translateX(0); }
+    }
+
+    #logo.shake {
+      animation: shake 0.5s ease-in-out;
     }
 
     header h1 {
@@ -557,6 +573,14 @@
       document.getElementById('add-url-btn').addEventListener('click', addURLRow);
       document.getElementById('generate-btn').addEventListener('click', generateLink);
       document.getElementById('copy-btn').addEventListener('click', copyLink);
+
+      const logo = document.getElementById('logo');
+      logo.addEventListener('click', function () {
+        logo.classList.add('shake');
+        logo.addEventListener('animationend', function () {
+          logo.classList.remove('shake');
+        }, { once: true });
+      });
     }
 
     document.addEventListener('DOMContentLoaded', init);
