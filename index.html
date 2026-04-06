@@ -4,10 +4,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Survey Randomizer</title>
+  <title>Forms Randomizer</title>
   <meta name="description" content="Generate a single link that randomly redirects visitors to one of your Google Survey URLs.">
 
-  <meta property="og:title" content="Survey Randomizer">
+  <meta property="og:title" content="Forms Randomizer">
   <meta property="og:type" content="website">
   <meta property="og:url" content="">
   <meta property="og:image" content="">
@@ -344,7 +344,7 @@
   <!-- Redirect view (shown when ?links= is in URL) -->
   <div id="redirect-view">
     <div class="spinner" id="redirect-spinner"></div>
-    <p id="redirect-label">Redirecting you to a survey…</p>
+    <p id="redirect-label">Redirecting you to a form…</p>
     <p id="redirect-error" hidden>
       This link appears to be invalid or corrupted.<br>
       <a href="/">Go back to the creator</a>.
@@ -354,9 +354,9 @@
   <!-- Creator view (shown when no ?links= param) -->
   <div id="creator-view">
     <header>
-      <img src="img/logo.png" alt="Survey Randomizer logo" id="logo">
-      <h1>Survey Randomizer</h1>
-      <p>Paste your survey URLs below. Anyone who visits your generated link will be sent to one of them at random.</p>
+      <img src="img/logo.png" alt="Forms Randomizer logo" id="logo">
+      <h1>Forms Randomizer</h1>
+      <p>Paste your form URLs below. Anyone who visits your generated link will be sent to one of them at random.</p>
     </header>
 
     <form id="survey-form" novalidate>
@@ -502,7 +502,7 @@
       }
 
       if (urls.length < MIN_URLS) {
-        formError.textContent = 'Please enter at least ' + MIN_URLS + ' valid survey URLs.';
+        formError.textContent = 'Please enter at least ' + MIN_URLS + ' valid form URLs.';
         formError.hidden = false;
         return;
       }

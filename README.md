@@ -1,10 +1,10 @@
-# Survey Randomizer
+# Google Forms Randomizer
 
-A lightweight static web page that takes multiple Google Survey (or any) URLs and generates a single shareable link. Anyone who visits that link is instantly and randomly redirected to one of the surveys — no server, no database, no tracking.
+A lightweight static web page that takes multiple Google Forms (or any) URLs and generates a single shareable link. Anyone who visits that link is instantly and randomly redirected to one of the forms — no server, no database, no tracking.
 
 ## How it works
 
-The generated link encodes all your survey URLs directly in its query string as a Base64-encoded JSON array:
+The generated link encodes all your form URLs directly in its query string as a Base64-encoded JSON array:
 
 ```
 https://laurent-clouet.fr/google-forms-randomizer/?links=BASE64_ENCODED_URLS
@@ -17,19 +17,19 @@ When a respondent visits the link, JavaScript in the page decodes the URLs, pick
 ### As a creator
 
 1. Open [laurent-clouet.fr/google-forms-randomizer](https://laurent-clouet.fr/google-forms-randomizer/)
-2. Paste 2–10 survey URLs into the input fields
+2. Paste 2–10 form URLs into the input fields
 3. Click **Generate link**
 4. Copy the generated link and share it
 
 ### As a respondent
 
-Just open the link — you'll be redirected to one of the surveys instantly.
+Just open the link — you'll be redirected to one of the forms instantly.
 
 ## Features
 
 - **No server or database** — all data lives in the URL itself
 - **No flash** — redirect fires before the page renders
-- **Equal probability** — each survey has the same chance of being selected
+- **Equal probability** — each form has the same chance of being selected
 - **Handles up to 10 URLs** — with a warning if the generated link exceeds 2,000 characters
 - **Validates inputs** — highlights invalid URLs before generating
 - **One-click copy** — clipboard API
