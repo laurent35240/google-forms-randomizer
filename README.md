@@ -4,10 +4,11 @@ A lightweight static web page that takes multiple Google Forms (or any) URLs and
 
 ## How it works
 
-The generated link encodes all your form URLs directly in its query string as a Base64-encoded JSON array:
+The form URLs are encoded directly in the query string as a Base64-encoded JSON array, then shortened via [is.gd](https://is.gd):
 
 ```
-https://laurent-clouet.fr/google-forms-randomizer/?links=BASE64_ENCODED_URLS
+https://is.gd/abc123
+  → https://laurent-clouet.fr/google-forms-randomizer/?links=BASE64_ENCODED_URLS
 ```
 
 When a respondent visits the link, JavaScript in the page decodes the URLs, picks one at random, and calls `window.location.replace()` before the page even renders. The respondent sees no UI — just a brief loading spinner.
@@ -30,6 +31,7 @@ Just open the link — you'll be redirected to one of the forms instantly.
 - **No server or database** — all data lives in the URL itself
 - **No flash** — redirect fires before the page renders
 - **Equal probability** — each form has the same chance of being selected
+- **Short links** — generated link is automatically shortened via is.gd (falls back to full URL if unavailable)
 - **Handles up to 10 URLs** — with a warning if the generated link exceeds 2,000 characters
 - **Validates inputs** — highlights invalid URLs before generating
 - **One-click copy** — clipboard API
