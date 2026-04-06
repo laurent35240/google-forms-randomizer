@@ -379,6 +379,23 @@
       margin-top: 8px;
     }
 
+    /* --- Footer --- */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 13px;
+      color: #80868b;
+    }
+
+    footer a {
+      color: #7c3aed;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
     /* --- Utility --- */
     [hidden] { display: none !important; }
   </style>
@@ -428,6 +445,10 @@
       <p id="shorten-notice" hidden>Could not shorten the link — full URL shown.</p>
     </section>
   </div>
+
+  <footer>
+    <p>By <a href="https://laurent-clouet.fr/" target="_blank" rel="noopener">Laurent Clouet</a> &mdash; <a href="https://github.com/laurent35240/google-forms-randomizer" target="_blank" rel="noopener">GitHub</a></p>
+  </footer>
 
   <script>
     const MAX_URLS = 10;
