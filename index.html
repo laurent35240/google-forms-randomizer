@@ -360,6 +360,12 @@
       margin-top: 8px;
     }
 
+    #shorten-notice {
+      font-size: 13px;
+      color: #80868b;
+      margin-top: 8px;
+    }
+
     /* --- Utility --- */
     [hidden] { display: none !important; }
   </style>
@@ -406,6 +412,7 @@
       <p id="url-length-warning" hidden>
         Warning: this URL is long (&gt;2000 chars) and may not work in all contexts.
       </p>
+      <p id="shorten-notice" hidden>Could not shorten the link — full URL shown.</p>
     </section>
   </div>
 
@@ -516,7 +523,7 @@
       return urls;
     }
 
-    function generateLink() {
+    async function generateLink() {
       const urls = getValidURLs();
       const formError = document.getElementById('form-error');
 
@@ -538,10 +545,37 @@
       const resultSection = document.getElementById('result');
       const resultInput = document.getElementById('result-url');
       const warning = document.getElementById('url-length-warning');
+      const shortenNotice = document.getElementById('shorten-notice');
+      const generateBtn = document.getElementById('generate-btn');
 
-      resultInput.value = shareURL;
+      // Show result section immediately with a placeholder while shortening
+      resultInput.value = 'Shortening link…';
       resultSection.hidden = false;
-      warning.hidden = shareURL.length <= 2000;
+      warning.hidden = true;
+      shortenNotice.hidden = true;
+      generateBtn.disabled = true;
+      resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      let displayURL = shareURL;
+      try {
+        const response = await fetch('https://is.gd/create.php?format=simple&url=' + encodeURIComponent(shareURL));
+        if (response.ok) {
+          const short = (await response.text()).trim();
+          if (short.startsWith('https://is.gd/') || short.startsWith('http://is.gd/')) {
+            displayURL = short;
+          } else {
+            shortenNotice.hidden = false;
+          }
+        } else {
+          shortenNotice.hidden = false;
+        }
+      } catch (_) {
+        shortenNotice.hidden = false;
+      }
+
+      generateBtn.disabled = false;
+      resultInput.value = displayURL;
+      warning.hidden = displayURL.length <= 2000;
 
       resultInput.classList.remove('glow');
       requestAnimationFrame(function () {
@@ -554,7 +588,6 @@
       });
 
       resultInput.select();
-      resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function copyLink() {
