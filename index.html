@@ -21,14 +21,14 @@
   <!-- Redirect logic runs synchronously before body renders to avoid any UI flash -->
   <script>
     (function () {
-      var params = new URLSearchParams(window.location.search);
-      var encoded = params.get('links');
+      const params = new URLSearchParams(window.location.search);
+      const encoded = params.get('links');
       if (encoded) {
         document.documentElement.dataset.mode = 'redirect';
         try {
-          var urls = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+          const urls = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), function(c) { return c.charCodeAt(0); })));
           if (Array.isArray(urls) && urls.length >= 2) {
-            var target = urls[Math.floor(Math.random() * urls.length)];
+            const target = urls[Math.floor(Math.random() * urls.length)];
             window.location.replace(target);
           } else {
             document.documentElement.dataset.error = 'invalid';
@@ -385,22 +385,25 @@
   </div>
 
   <script>
-    var MAX_URLS = 10;
-    var MIN_URLS = 2;
-    var rowCount = 0;
+    const MAX_URLS = 10;
+    const MIN_URLS = 2;
+    let rowCount = 0;
 
     function encodeLinks(urls) {
-      return btoa(unescape(encodeURIComponent(JSON.stringify(urls))));
+      const bytes = new TextEncoder().encode(JSON.stringify(urls));
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary);
     }
 
     function buildShareableURL(urls) {
-      var base = window.location.origin + window.location.pathname;
+      const base = window.location.origin + window.location.pathname;
       return base + '?links=' + encodeLinks(urls);
     }
 
     function isValidURL(str) {
       try {
-        var url = new URL(str.trim());
+        const url = new URL(str.trim());
         return url.protocol === 'https:' || url.protocol === 'http:';
       } catch (_) {
         return false;
@@ -408,27 +411,27 @@
     }
 
     function updateRemoveButtons() {
-      var rows = document.querySelectorAll('.url-row');
+      const rows = document.querySelectorAll('.url-row');
       rows.forEach(function (row) {
         row.querySelector('.remove-btn').disabled = rows.length <= MIN_URLS;
       });
     }
 
     function updateAddButton() {
-      var rows = document.querySelectorAll('.url-row');
+      const rows = document.querySelectorAll('.url-row');
       document.getElementById('add-url-btn').disabled = rows.length >= MAX_URLS;
     }
 
     function createURLRow() {
       rowCount++;
-      var row = document.createElement('div');
+      const row = document.createElement('div');
       row.className = 'url-row';
 
-      var label = document.createElement('span');
+      const label = document.createElement('span');
       label.className = 'url-label';
       label.textContent = 'URL ' + rowCount;
 
-      var input = document.createElement('input');
+      const input = document.createElement('input');
       input.type = 'url';
       input.className = 'url-input';
       input.placeholder = 'https://docs.google.com/forms/…';
@@ -436,12 +439,12 @@
       input.spellcheck = false;
       input.addEventListener('input', function () {
         input.classList.remove('error');
-        var err = document.getElementById('form-error');
+        const err = document.getElementById('form-error');
         err.hidden = true;
         err.textContent = '';
       });
 
-      var removeBtn = document.createElement('button');
+      const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.className = 'remove-btn';
       removeBtn.setAttribute('aria-label', 'Remove this URL');
@@ -459,8 +462,8 @@
     }
 
     function addURLRow() {
-      var list = document.getElementById('url-list');
-      var row = createURLRow();
+      const list = document.getElementById('url-list');
+      const row = createURLRow();
       list.appendChild(row);
       row.querySelector('.url-input').focus();
       updateRemoveButtons();
@@ -468,12 +471,12 @@
     }
 
     function getValidURLs() {
-      var inputs = document.querySelectorAll('.url-input');
-      var urls = [];
-      var hasInvalid = false;
+      const inputs = document.querySelectorAll('.url-input');
+      const urls = [];
+      let hasInvalid = false;
 
       inputs.forEach(function (input) {
-        var val = input.value.trim();
+        const val = input.value.trim();
         if (val === '') return;
         if (!isValidURL(val)) {
           input.classList.add('error');
@@ -489,8 +492,8 @@
     }
 
     function generateLink() {
-      var urls = getValidURLs();
-      var formError = document.getElementById('form-error');
+      const urls = getValidURLs();
+      const formError = document.getElementById('form-error');
 
       if (urls === null) {
         formError.textContent = 'Please fix the highlighted fields.';
@@ -506,11 +509,11 @@
 
       formError.hidden = true;
 
-      var shareURL = buildShareableURL(urls);
-      var resultSection = document.getElementById('result');
-      var resultInput = document.getElementById('result-url');
-      var warning = document.getElementById('url-length-warning');
-      var confirmation = document.getElementById('copy-confirmation');
+      const shareURL = buildShareableURL(urls);
+      const resultSection = document.getElementById('result');
+      const resultInput = document.getElementById('result-url');
+      const warning = document.getElementById('url-length-warning');
+      const confirmation = document.getElementById('copy-confirmation');
 
       resultInput.value = shareURL;
       resultSection.hidden = false;
@@ -522,9 +525,9 @@
     }
 
     function copyLink() {
-      var url = document.getElementById('result-url').value;
-      var confirmation = document.getElementById('copy-confirmation');
-      var copyBtn = document.getElementById('copy-btn');
+      const url = document.getElementById('result-url').value;
+      const confirmation = document.getElementById('copy-confirmation');
+      const copyBtn = document.getElementById('copy-btn');
 
       function showConfirmation() {
         confirmation.hidden = false;
@@ -535,32 +538,17 @@
         }, 2000);
       }
 
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(showConfirmation).catch(function () {
-          fallbackCopy(url, showConfirmation);
-        });
-      } else {
-        fallbackCopy(url, showConfirmation);
-      }
-    }
-
-    function fallbackCopy(text, callback) {
-      var input = document.getElementById('result-url');
-      input.select();
-      try {
-        document.execCommand('copy');
-        callback();
-      } catch (_) {}
+      navigator.clipboard.writeText(url).then(showConfirmation);
     }
 
     function init() {
       if (document.documentElement.dataset.mode !== 'creator') return;
 
-      var list = document.getElementById('url-list');
+      const list = document.getElementById('url-list');
 
       // Render initial 2 rows
-      for (var i = 0; i < MIN_URLS; i++) {
-        var row = createURLRow();
+      for (let i = 0; i < MIN_URLS; i++) {
+        const row = createURLRow();
         list.appendChild(row);
       }
       updateRemoveButtons();
