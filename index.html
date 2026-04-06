@@ -284,12 +284,28 @@
     }
 
     /* --- Result section --- */
+    @keyframes result-appear {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes url-glow {
+      0%   { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); border-color: #dadce0; }
+      30%  { box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2); border-color: #7c3aed; }
+      100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); border-color: #dadce0; }
+    }
+
     #result {
       margin-top: 20px;
       background: #fff;
       border: 1px solid #dadce0;
       border-radius: 8px;
       padding: 20px 24px;
+      animation: result-appear 0.3s ease-out;
+    }
+
+    #result-url.glow {
+      animation: url-glow 0.8s ease-out;
     }
 
     #result label {
@@ -337,12 +353,6 @@
       background: #6d28d9;
     }
 
-    #copy-confirmation {
-      font-size: 13px;
-      color: #188038;
-      margin-top: 8px;
-      font-weight: 500;
-    }
 
     #url-length-warning {
       font-size: 13px;
@@ -393,7 +403,6 @@
         <input type="text" id="result-url" readonly>
         <button type="button" id="copy-btn">Copy</button>
       </div>
-      <p id="copy-confirmation" hidden>Copied!</p>
       <p id="url-length-warning" hidden>
         Warning: this URL is long (&gt;2000 chars) and may not work in all contexts.
       </p>
@@ -529,12 +538,20 @@
       const resultSection = document.getElementById('result');
       const resultInput = document.getElementById('result-url');
       const warning = document.getElementById('url-length-warning');
-      const confirmation = document.getElementById('copy-confirmation');
 
       resultInput.value = shareURL;
       resultSection.hidden = false;
-      confirmation.hidden = true;
       warning.hidden = shareURL.length <= 2000;
+
+      resultInput.classList.remove('glow');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          resultInput.classList.add('glow');
+          resultInput.addEventListener('animationend', function () {
+            resultInput.classList.remove('glow');
+          }, { once: true });
+        });
+      });
 
       resultInput.select();
       resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -542,19 +559,14 @@
 
     function copyLink() {
       const url = document.getElementById('result-url').value;
-      const confirmation = document.getElementById('copy-confirmation');
       const copyBtn = document.getElementById('copy-btn');
 
-      function showConfirmation() {
-        confirmation.hidden = false;
+      navigator.clipboard.writeText(url).then(function () {
         copyBtn.textContent = 'Copied!';
         setTimeout(function () {
-          confirmation.hidden = true;
           copyBtn.textContent = 'Copy';
         }, 2000);
-      }
-
-      navigator.clipboard.writeText(url).then(showConfirmation);
+      });
     }
 
     function init() {
