@@ -7,7 +7,7 @@ A lightweight static web page that takes multiple Google Survey (or any) URLs an
 The generated link encodes all your survey URLs directly in its query string as a Base64-encoded JSON array:
 
 ```
-https://yoursite.com/?links=BASE64_ENCODED_URLS
+https://laurent-clouet.fr/google-forms-randomizer/?links=BASE64_ENCODED_URLS
 ```
 
 When a respondent visits the link, JavaScript in the page decodes the URLs, picks one at random, and calls `window.location.replace()` before the page even renders. The respondent sees no UI — just a brief loading spinner.
@@ -16,7 +16,7 @@ When a respondent visits the link, JavaScript in the page decodes the URLs, pick
 
 ### As a creator
 
-1. Open the page
+1. Open [laurent-clouet.fr/google-forms-randomizer](https://laurent-clouet.fr/google-forms-randomizer/)
 2. Paste 2–10 survey URLs into the input fields
 3. Click **Generate link**
 4. Copy the generated link and share it
@@ -32,16 +32,11 @@ Just open the link — you'll be redirected to one of the surveys instantly.
 - **Equal probability** — each survey has the same chance of being selected
 - **Handles up to 10 URLs** — with a warning if the generated link exceeds 2,000 characters
 - **Validates inputs** — highlights invalid URLs before generating
-- **One-click copy** — clipboard API with fallback for older browsers
+- **One-click copy** — clipboard API
 
-## Deployment (GitHub Pages)
+## Live page
 
-1. Push the repository to GitHub
-2. Go to **Settings → Pages**
-3. Set source to the `main` branch, root folder
-4. Your page will be live at `https://<username>.github.io/<repo>/`
-
-Query parameters are preserved by GitHub Pages, so the generated links work out of the box.
+[https://laurent-clouet.fr/google-forms-randomizer/](https://laurent-clouet.fr/google-forms-randomizer/)
 
 ## Project structure
 
